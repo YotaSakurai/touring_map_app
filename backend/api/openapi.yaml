@@ -1,0 +1,466 @@
+openapi: 3.0.3
+info:
+  title: Touring Map API
+  description: ツーリング専用マップアプリのAPI
+  version: 1.0.0
+  contact:
+    name: Touring Map Team
+    email: support@touringmap.com
+
+servers:
+  - url: https://api.touringmap.com/v1
+    description: 本番環境
+  - url: https://staging-api.touringmap.com/v1
+    description: ステージング環境
+  - url: http://localhost:3000/v1
+    description: 開発環境
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ルート関連API
+  /routes:
+    post:
+      summary: ルートを作成
+      description: 新しいルートを作成します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteCreate'
+      responses:
+        '201':
+          description: ルートが作成されました
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Route'
+        '400':
+          description: リクエストが無効です
+        '401':
+          description: 認証が必要です
+
+    get:
+      summary: ルート一覧を取得
+      description: 条件に基づいてルート一覧を取得します
+      parameters:
+        - in: query
+          name: owner_id
+          schema:
+            type: string
+            format: uuid
+          description: オーナーIDでフィルタ
+        - in: query
+          name: tags
+          schema:
+            type: string
+          description: タグでフィルタ（カンマ区切り）
+        - in: query
+          name: visibility
+          schema:
+            type: string
+            enum: [public, unlisted, private]
+          description: 可視性でフィルタ
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+          description: 取得件数
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+          description: オフセット
+      responses:
+        '200':
+          description: ルート一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Route'
+                  total:
+                    type: integer
+                    description: 総件数
+
+  /routes/{id}:
+    get:
+      summary: ルート詳細を取得
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ルート詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Route'
+        '404':
+          description: ルートが見つかりません
+
+    patch:
+      summary: ルートを更新
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteUpdate'
+      responses:
+        '200':
+          description: ルートが更新されました
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Route'
+        '409':
+          description: バージョン競合
+
+    delete:
+      summary: ルートを削除
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: ルートが削除されました
+        '404':
+          description: ルートが見つかりません
+
+  /routes/{id}/export:
+    post:
+      summary: ルートをエクスポート
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                formats:
+                  type: array
+                  items:
+                    type: string
+                    enum: [gpx_route, gpx_track, gpx_waypoints, kml]
+              required: [formats]
+      responses:
+        '202':
+          description: エクスポートジョブが開始されました
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                    description: ジョブID
+
+  # インポート関連API
+  /imports:
+    post:
+      summary: GPX/KMLファイルをインポート
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: GPXまたはKMLファイル
+                simplify_tolerance_m:
+                  type: number
+                  default: 5
+                  description: 簡略化の許容誤差（メートル）
+                add_elevation:
+                  type: boolean
+                  default: true
+                  description: 標高データを追加するか
+              required: [file]
+      responses:
+        '202':
+          description: インポートジョブが開始されました
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                    description: ジョブID
+
+  # 共有関連API
+  /shares:
+    post:
+      summary: 共有トークンを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                route_id:
+                  type: string
+                  format: uuid
+                expires_at:
+                  type: string
+                  format: date-time
+                  description: 有効期限（省略時は無期限）
+              required: [route_id]
+      responses:
+        '201':
+          description: 共有トークンが作成されました
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    description: 共有URL
+
+  # ヤエー関連API
+  /yae/events:
+    get:
+      summary: ヤエーイベント一覧を取得
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+          description: 取得件数
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+          description: オフセット
+      responses:
+        '200':
+          description: ヤエーイベント一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/YaeEvent'
+                  total:
+                    type: integer
+                    description: 総件数
+
+  # スポット関連API
+  /spots:
+    get:
+      summary: スポット一覧を取得
+      parameters:
+        - in: query
+          name: tags
+          schema:
+            type: string
+          description: タグでフィルタ（カンマ区切り）
+        - in: query
+          name: lat
+          schema:
+            type: number
+          description: 中心緯度
+        - in: query
+          name: lng
+          schema:
+            type: number
+          description: 中心経度
+        - in: query
+          name: radius
+          schema:
+            type: number
+            default: 1000
+          description: 検索半径（メートル）
+      responses:
+        '200':
+          description: スポット一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  spots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Spot'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RouteCreate:
+      type: object
+      required: [title, geom]
+      properties:
+        title:
+          type: string
+          description: ルートタイトル
+        description:
+          type: string
+          description: ルート説明
+        geom:
+          type: string
+          description: GeoJSON MultiLineString (WGS84)
+        tags:
+          type: array
+          items:
+            type: string
+          description: タグ一覧
+        visibility:
+          type: string
+          enum: [public, unlisted, private]
+          default: private
+          description: 可視性
+
+    RouteUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        geom:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        visibility:
+          type: string
+          enum: [public, unlisted, private]
+        version:
+          type: integer
+          description: 現在のバージョン（楽観ロック用）
+
+    Route:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        geom:
+          type: string
+          description: GeoJSON MultiLineString
+        distance_m:
+          type: integer
+          description: 距離（メートル）
+        elev_gain_m:
+          type: integer
+          description: 標高差（メートル）
+        tags:
+          type: array
+          items:
+            type: string
+        visibility:
+          type: string
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    YaeEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_a:
+          type: string
+          format: uuid
+        user_b:
+          type: string
+          format: uuid
+        point:
+          type: string
+          description: GeoJSON Point
+        happened_at:
+          type: string
+          format: date-time
+        confidence:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: 信頼度（0-100）
+
+    Spot:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        geom:
+          type: string
+          description: GeoJSON Point
+        name:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        open_hours_json:
+          type: object
+          description: 営業時間情報
+        verified:
+          type: boolean
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time

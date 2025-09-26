@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import '../models/route.dart';
 import '../providers/route_provider.dart';
+import 'export_screen.dart';
 
 class RouteDetailScreen extends ConsumerStatefulWidget {
   final String routeId;
@@ -549,9 +550,10 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           );
           break;
         case 'export':
-          // TODO: エクスポート機能を実装
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('エクスポート機能（実装予定）')),
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ExportScreen(routeId: route.id),
+            ),
           );
           break;
         case 'delete':

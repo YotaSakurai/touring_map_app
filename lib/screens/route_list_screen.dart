@@ -4,6 +4,8 @@ import '../models/route.dart';
 import '../providers/route_provider.dart';
 import 'route_detail_screen.dart';
 import 'route_creation_screen.dart';
+import 'export_screen.dart';
+import 'import_screen.dart';
 
 class RouteListScreen extends ConsumerStatefulWidget {
   const RouteListScreen({super.key});
@@ -23,6 +25,17 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
         title: const Text('ルート一覧'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.upload),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ImportScreen(),
+                ),
+              );
+            },
+            tooltip: 'ファイルをインポート',
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
@@ -419,9 +432,10 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
         );
         break;
       case 'export':
-        // TODO: エクスポート機能を実装
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('エクスポート機能（実装予定）')),
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ExportScreen(routeId: route.id),
+          ),
         );
         break;
       case 'delete':

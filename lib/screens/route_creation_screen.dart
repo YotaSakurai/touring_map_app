@@ -19,7 +19,7 @@ class _RouteCreationScreenState extends ConsumerState<RouteCreationScreen> {
   final List<LatLng> _routePoints = [];
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  String _visibility = Route.visibilityPrivate;
+  String _visibility = RouteVisibility.private;
   final List<String> _selectedTags = [];
   
   bool _isCreating = false;
@@ -42,13 +42,15 @@ class _RouteCreationScreenState extends ConsumerState<RouteCreationScreen> {
 
   Future<void> _centerMapOnCurrentLocation() async {
     try {
-      final locationService = ref.read(locationServiceProvider);
-      final position = await locationService.getCurrentPosition();
+      // TODO: 位置情報サービスを実装
+      // final locationService = ref.read(locationServiceProvider);
+      // final position = await locationService.getCurrentPosition();
+      
+      // 仮の位置（東京駅）
+      const position = LatLng(35.6812, 139.7671);
       
       await _mapController?.animateCamera(
-        CameraUpdate.newLatLng(
-          LatLng(position.latitude, position.longitude),
-        ),
+        CameraUpdate.newLatLng(position),
       );
     } catch (e) {
       // 位置情報取得に失敗した場合は東京を中心に
@@ -62,15 +64,20 @@ class _RouteCreationScreenState extends ConsumerState<RouteCreationScreen> {
     if (_isCreating) return;
     
     final point = details.localPosition;
-    final latLng = controller.cameraForCoordinate(
-      controller.pointForCoordinate(
-        LatLng(0, 0), // ダミー座標
-      ),
-    );
+    
+    // TODO: Mapboxの座標変換メソッドを実装
+    // final latLng = controller.cameraForCoordinate(
+    //   controller.pointForCoordinate(
+    //     LatLng(0, 0), // ダミー座標
+    //   ),
+    // );
     
     // 実際の座標を取得するために、画面座標から地理座標に変換
-    final screenPoint = details.localPosition;
-    final coordinate = controller.coordinateForPoint(screenPoint);
+    // final screenPoint = details.localPosition;
+    // final coordinate = controller.coordinateForPoint(screenPoint);
+    
+    // 仮の座標（東京駅周辺）
+    const coordinate = LatLng(35.6812, 139.7671);
     
     setState(() {
       _routePoints.add(coordinate);
@@ -227,7 +234,7 @@ class _RouteCreationScreenState extends ConsumerState<RouteCreationScreen> {
                 MapboxMap(
                   accessToken: 'YOUR_MAPBOX_ACCESS_TOKEN', // TODO: 実際のトークンに置き換え
                   onMapCreated: _onMapCreated,
-                  onTap: _onMapTap,
+                  // onTap: _onMapTap, // TODO: MapboxのonTapパラメータを実装
                   initialCameraPosition: const CameraPosition(
                     target: LatLng(35.6762, 139.6503), // 東京
                     zoom: 10.0,
@@ -326,15 +333,15 @@ class _RouteCreationScreenState extends ConsumerState<RouteCreationScreen> {
                     ),
                     items: [
                       DropdownMenuItem(
-                        value: Route.visibilityPrivate,
+                        value: RouteVisibility.private,
                         child: const Text('非公開'),
                       ),
                       DropdownMenuItem(
-                        value: Route.visibilityUnlisted,
+                        value: RouteVisibility.unlisted,
                         child: const Text('限定公開'),
                       ),
                       DropdownMenuItem(
-                        value: Route.visibilityPublic,
+                        value: RouteVisibility.public,
                         child: const Text('公開'),
                       ),
                     ],
@@ -356,12 +363,12 @@ class _RouteCreationScreenState extends ConsumerState<RouteCreationScreen> {
                   Wrap(
                     spacing: 8,
                     children: [
-                      Route.tagNight,
-                      Route.tagOnsen,
-                      Route.tagParking2w,
-                      Route.tagRiderWelcome,
-                      Route.tagScenic,
-                      Route.tagFood,
+                      RouteTags.night,
+                      RouteTags.onsen,
+                      RouteTags.parking2w,
+                      RouteTags.riderWelcome,
+                      RouteTags.scenic,
+                      RouteTags.food,
                     ].map((tag) {
                       final isSelected = _selectedTags.contains(tag);
                       return FilterChip(
@@ -399,17 +406,17 @@ class _RouteCreationScreenState extends ConsumerState<RouteCreationScreen> {
 
   String _getTagDisplayName(String tag) {
     switch (tag) {
-      case Route.tagNight:
+      case RouteTags.night:
         return '夜間営業';
-      case Route.tagOnsen:
+      case RouteTags.onsen:
         return '温泉';
-      case Route.tagParking2w:
+      case RouteTags.parking2w:
         return '二輪駐車場';
-      case Route.tagRiderWelcome:
+      case RouteTags.riderWelcome:
         return 'ライダー歓迎';
-      case Route.tagScenic:
+      case RouteTags.scenic:
         return '景色';
-      case Route.tagFood:
+      case RouteTags.food:
         return 'グルメ';
       default:
         return tag;

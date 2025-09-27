@@ -6,7 +6,7 @@ part of 'route.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Route _$RouteFromJson(Map<String, dynamic> json) => Route(
+TouringRoute _$TouringRouteFromJson(Map<String, dynamic> json) => TouringRoute(
       id: json['id'] as String,
       ownerId: json['ownerId'] as String,
       title: json['title'] as String,
@@ -23,7 +23,8 @@ Route _$RouteFromJson(Map<String, dynamic> json) => Route(
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
 
-Map<String, dynamic> _$RouteToJson(Route instance) => <String, dynamic>{
+Map<String, dynamic> _$TouringRouteToJson(TouringRoute instance) =>
+    <String, dynamic>{
       'id': instance.id,
       'ownerId': instance.ownerId,
       'title': instance.title,

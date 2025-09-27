@@ -61,7 +61,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           final routeAsync = ref.watch(routeProvider(widget.routeId));
           
           return routeAsync.when(
-            data: (route) => _buildExportContent(route),
+            data: (touringRoute) => _buildExportContent(touringRoute),
             loading: () => const Center(
               child: CircularProgressIndicator(),
             ),
@@ -101,7 +101,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     );
   }
 
-  Widget _buildExportContent(Route route) {
+  Widget _buildExportContent(TouringRoute touringRoute) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -131,12 +131,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              route.title,
+                              touringRoute.title,
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            if (route.description != null && route.description!.isNotEmpty)
+                            if (touringRoute.description != null && touringRoute.description!.isNotEmpty)
                               Text(
-                                route.description!,
+                                touringRoute.description!,
                                 style: Theme.of(context).textTheme.bodySmall,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -149,19 +149,19 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      if (route.distanceM != null)
+                      if (touringRoute.distanceM != null)
                         _buildInfoChip(
                           Icons.straighten,
-                          '${(route.distanceM! / 1000).toStringAsFixed(1)}km',
+                          '${(touringRoute.distanceM! / 1000).toStringAsFixed(1)}km',
                         ),
-                      if (route.elevGainM != null)
+                      if (touringRoute.elevGainM != null)
                         _buildInfoChip(
                           Icons.trending_up,
-                          '${route.elevGainM}m',
+                          '${touringRoute.elevGainM}m',
                         ),
                       _buildInfoChip(
                         Icons.label,
-                        '${route.tags.length}タグ',
+                        '${touringRoute.tags.length}タグ',
                       ),
                     ],
                   ),

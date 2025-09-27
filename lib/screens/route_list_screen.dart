@@ -136,10 +136,10 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
         return routesAsync.when(
           data: (routes) {
             // 検索クエリでフィルタリング
-            final filteredRoutes = routes.where((route) {
+            final filteredRoutes = routes.where((touringRoute) {
               if (_searchQuery.isNotEmpty) {
-                return route.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                       (route.description?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
+                return touringRoute.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                       (touringRoute.description?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
               }
               return true;
             }).toList();
@@ -184,8 +184,8 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
               child: ListView.builder(
                 itemCount: filteredRoutes.length,
                 itemBuilder: (context, index) {
-                  final route = filteredRoutes[index];
-                  return _buildRouteCard(route);
+                  final touringRoute = filteredRoutes[index];
+                  return _buildRouteCard(touringRoute);
                 },
               ),
             );
@@ -228,71 +228,71 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
     );
   }
 
-  Provider<Future<List<Route>>> _getRouteProvider() {
+  FutureProvider<List<TouringRoute>> _getRouteProvider() {
     switch (_selectedFilter) {
       case 'public':
         return publicRoutesProvider;
       case 'night':
-        return routesByTagProvider(Route.tagNight);
+        return routesByTagProvider(RouteTags.night);
       case 'onsen':
-        return routesByTagProvider(Route.tagOnsen);
+        return routesByTagProvider(RouteTags.onsen);
       case 'parking2w':
-        return routesByTagProvider(Route.tagParking2w);
+        return routesByTagProvider(RouteTags.parking2w);
       case 'scenic':
-        return routesByTagProvider(Route.tagScenic);
+        return routesByTagProvider(RouteTags.scenic);
       default:
         return routesProvider;
     }
   }
 
-  Widget _buildRouteCard(Route route) {
+  Widget _buildRouteCard(TouringRoute touringRoute) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: _getVisibilityColor(route.visibility),
+          backgroundColor: _getVisibilityColor(touringRoute.visibility),
           child: Icon(
-            _getVisibilityIcon(route.visibility),
+            _getVisibilityIcon(touringRoute.visibility),
             color: Colors.white,
             size: 20,
           ),
         ),
         title: Text(
-          route.title,
+          touringRoute.title,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (route.description != null && route.description!.isNotEmpty)
+            if (touringRoute.description != null && touringRoute.description!.isNotEmpty)
               Text(
-                route.description!,
+                touringRoute.description!,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             const SizedBox(height: 4),
             Row(
               children: [
-                if (route.distanceM != null)
+                if (touringRoute.distanceM != null)
                   _buildInfoChip(
                     Icons.straighten,
-                    '${(route.distanceM! / 1000).toStringAsFixed(1)}km',
+                    '${(touringRoute.distanceM! / 1000).toStringAsFixed(1)}km',
                   ),
-                if (route.elevGainM != null)
+                if (touringRoute.elevGainM != null)
                   _buildInfoChip(
                     Icons.trending_up,
-                    '${route.elevGainM}m',
+                    '${touringRoute.elevGainM}m',
                   ),
-                if (route.tags.isNotEmpty)
+                if (touringRoute.tags.isNotEmpty)
                   _buildInfoChip(
                     Icons.label,
-                    '${route.tags.length}タグ',
+                    '${touringRoute.tags.length}タグ',
                   ),
               ],
             ),
             const SizedBox(height: 4),
             Text(
-              '作成日: ${_formatDate(route.createdAt)}',
+              '作成日: ${_formatDate(touringRoute.createdAt)}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Colors.grey[600],
               ),
@@ -301,7 +301,7 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
         ),
         trailing: PopupMenuButton<String>(
           onSelected: (value) {
-            _handleRouteAction(value, route);
+            _handleRouteAction(value, touringRoute);
           },
           itemBuilder: (context) => [
             const PopupMenuItem(
@@ -349,7 +349,7 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => RouteDetailScreen(routeId: route.id),
+              builder: (context) => RouteDetailScreen(routeId: touringRoute.id),
             ),
           );
         },
@@ -371,11 +371,11 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
 
   Color _getVisibilityColor(String visibility) {
     switch (visibility) {
-      case Route.visibilityPublic:
+      case RouteVisibility.public:
         return Colors.green;
-      case Route.visibilityUnlisted:
+      case RouteVisibility.unlisted:
         return Colors.orange;
-      case Route.visibilityPrivate:
+      case RouteVisibility.private:
         return Colors.grey;
       default:
         return Colors.grey;
@@ -384,11 +384,11 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
 
   IconData _getVisibilityIcon(String visibility) {
     switch (visibility) {
-      case Route.visibilityPublic:
+      case RouteVisibility.public:
         return Icons.public;
-      case Route.visibilityUnlisted:
+      case RouteVisibility.unlisted:
         return Icons.link;
-      case Route.visibilityPrivate:
+      case RouteVisibility.private:
         return Icons.lock;
       default:
         return Icons.help;
@@ -410,12 +410,12 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
     }
   }
 
-  void _handleRouteAction(String action, Route route) {
+  void _handleRouteAction(String action, TouringRoute touringRoute) {
     switch (action) {
       case 'view':
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => RouteDetailScreen(routeId: route.id),
+            builder: (context) => RouteDetailScreen(routeId: touringRoute.id),
           ),
         );
         break;
@@ -434,22 +434,22 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
       case 'export':
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => ExportScreen(routeId: route.id),
+            builder: (context) => ExportScreen(routeId: touringRoute.id),
           ),
         );
         break;
       case 'delete':
-        _showDeleteDialog(route);
+        _showDeleteDialog(touringRoute);
         break;
     }
   }
 
-  void _showDeleteDialog(Route route) {
+  void _showDeleteDialog(TouringRoute touringRoute) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('ルートを削除'),
-        content: Text('「${route.title}」を削除しますか？\nこの操作は取り消せません。'),
+        content: Text('「${touringRoute.title}」を削除しますか？\nこの操作は取り消せません。'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -458,7 +458,7 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              await _deleteRoute(route);
+              await _deleteRoute(touringRoute);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('削除'),
@@ -468,10 +468,10 @@ class _RouteListScreenState extends ConsumerState<RouteListScreen> {
     );
   }
 
-  Future<void> _deleteRoute(Route route) async {
+  Future<void> _deleteRoute(TouringRoute touringRoute) async {
     try {
       final apiService = ref.read(apiServiceProvider);
-      await apiService.deleteRoute(route.id);
+      await apiService.deleteRoute(touringRoute.id);
       
       // ルート一覧を更新
       ref.invalidate(routesProvider);

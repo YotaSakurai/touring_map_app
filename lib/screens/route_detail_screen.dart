@@ -114,7 +114,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     );
   }
 
-  Widget _buildRouteDetail(Route route) {
+  Widget _buildRouteDetail(TouringRoute route) {
     return Column(
       children: [
         // 地図エリア
@@ -214,17 +214,17 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     String text;
     
     switch (visibility) {
-      case Route.visibilityPublic:
+      case RouteVisibility.public:
         color = Colors.green;
         icon = Icons.public;
         text = '公開';
         break;
-      case Route.visibilityUnlisted:
+      case RouteVisibility.unlisted:
         color = Colors.orange;
         icon = Icons.link;
         text = '限定公開';
         break;
-      case Route.visibilityPrivate:
+      case RouteVisibility.private:
         color = Colors.grey;
         icon = Icons.lock;
         text = '非公開';
@@ -243,7 +243,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     );
   }
 
-  Widget _buildRouteStats(Route route) {
+  Widget _buildRouteStats(TouringRoute route) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -322,7 +322,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     );
   }
 
-  Widget _buildDateInfo(Route route) {
+  Widget _buildDateInfo(TouringRoute route) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -356,7 +356,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     );
   }
 
-  Widget _buildActionButtons(Route route) {
+  Widget _buildActionButtons(TouringRoute route) {
     return Row(
       children: [
         Expanded(
@@ -462,7 +462,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     return [];
   }
 
-  CameraPosition _getInitialCameraPosition(Route route) {
+  CameraPosition _getInitialCameraPosition(TouringRoute route) {
     final coordinates = _extractCoordinates(route.geom);
     if (coordinates.isNotEmpty) {
       return CameraPosition(
@@ -505,24 +505,24 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     });
   }
 
-  int _getPointCount(Route route) {
+  int _getPointCount(TouringRoute route) {
     final coordinates = _extractCoordinates(route.geom);
     return coordinates.length;
   }
 
   String _getTagDisplayName(String tag) {
     switch (tag) {
-      case Route.tagNight:
+      case RouteTags.night:
         return '夜間営業';
-      case Route.tagOnsen:
+      case RouteTags.onsen:
         return '温泉';
-      case Route.tagParking2w:
+      case RouteTags.parking2w:
         return '二輪駐車場';
-      case Route.tagRiderWelcome:
+      case RouteTags.riderWelcome:
         return 'ライダー歓迎';
-      case Route.tagScenic:
+      case RouteTags.scenic:
         return '景色';
-      case Route.tagFood:
+      case RouteTags.food:
         return 'グルメ';
       default:
         return tag;
@@ -563,7 +563,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     });
   }
 
-  void _showDeleteDialog(Route route) {
+  void _showDeleteDialog(TouringRoute route) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -587,7 +587,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     );
   }
 
-  Future<void> _deleteRoute(Route route) async {
+  Future<void> _deleteRoute(TouringRoute route) async {
     try {
       final apiService = ref.read(apiServiceProvider);
       await apiService.deleteRoute(route.id);

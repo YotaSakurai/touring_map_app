@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/route.dart';
 import '../providers/route_provider.dart';
 import 'export_screen.dart';
@@ -123,7 +124,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           child: Stack(
             children: [
               MapboxMap(
-                accessToken: 'YOUR_MAPBOX_ACCESS_TOKEN', // TODO: 実際のトークンに置き換え
+                accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN'] ?? 'YOUR_MAPBOX_ACCESS_TOKEN',
                 onMapCreated: _onMapCreated,
                 initialCameraPosition: _getInitialCameraPosition(route),
                 styleString: MapboxStyles.MAPBOX_STREETS,

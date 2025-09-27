@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/route.dart';
 import '../services/location_service.dart';
 import '../services/api_service.dart';
@@ -232,7 +233,7 @@ class _RouteCreationScreenState extends ConsumerState<RouteCreationScreen> {
             child: Stack(
               children: [
                 MapboxMap(
-                  accessToken: 'YOUR_MAPBOX_ACCESS_TOKEN', // TODO: 実際のトークンに置き換え
+                  accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN'] ?? 'YOUR_MAPBOX_ACCESS_TOKEN',
                   onMapCreated: _onMapCreated,
                   // onTap: _onMapTap, // TODO: MapboxのonTapパラメータを実装
                   initialCameraPosition: const CameraPosition(

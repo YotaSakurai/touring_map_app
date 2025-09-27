@@ -8,31 +8,31 @@ final apiServiceProvider = Provider<ApiService>((ref) {
 });
 
 /// ルート一覧のプロバイダー
-final routesProvider = FutureProvider<List<Route>>((ref) async {
+final routesProvider = FutureProvider<List<TouringRoute>>((ref) async {
   final apiService = ref.read(apiServiceProvider);
   return await apiService.getRoutes();
 });
 
 /// 特定ユーザーのルート一覧プロバイダー
-final userRoutesProvider = FutureProvider.family<List<Route>, String>((ref, userId) async {
+final userRoutesProvider = FutureProvider.family<List<TouringRoute>, String>((ref, userId) async {
   final apiService = ref.read(apiServiceProvider);
   return await apiService.getRoutes(ownerId: userId);
 });
 
 /// 公開ルート一覧プロバイダー
-final publicRoutesProvider = FutureProvider<List<Route>>((ref) async {
+final publicRoutesProvider = FutureProvider<List<TouringRoute>>((ref) async {
   final apiService = ref.read(apiServiceProvider);
-  return await apiService.getRoutes(visibility: Route.visibilityPublic);
+  return await apiService.getRoutes(visibility: RouteVisibility.public);
 });
 
 /// 特定ルートの詳細プロバイダー
-final routeProvider = FutureProvider.family<Route, String>((ref, routeId) async {
+final routeProvider = FutureProvider.family<TouringRoute, String>((ref, routeId) async {
   final apiService = ref.read(apiServiceProvider);
   return await apiService.getRoute(routeId);
 });
 
 /// タグでフィルタされたルート一覧プロバイダー
-final routesByTagProvider = FutureProvider.family<List<Route>, String>((ref, tag) async {
+final routesByTagProvider = FutureProvider.family<List<TouringRoute>, String>((ref, tag) async {
   final apiService = ref.read(apiServiceProvider);
   return await apiService.getRoutes(tags: tag);
 });

@@ -42,17 +42,17 @@ class ApiService {
   // ===== ルート関連API =====
 
   /// ルートを作成
-  Future<Route> createRoute(Map<String, dynamic> routeData) async {
+  Future<TouringRoute> createRoute(Map<String, dynamic> routeData) async {
     try {
       final response = await _dio.post('/routes', data: routeData);
-      return Route.fromJson(response.data);
+      return TouringRoute.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
   /// ルート一覧を取得
-  Future<List<Route>> getRoutes({
+  Future<List<TouringRoute>> getRoutes({
     String? ownerId,
     String? tags,
     String? visibility,
@@ -65,7 +65,7 @@ class ApiService {
 
       final response = await _dio.get('/routes', queryParameters: queryParams);
       return (response.data as List)
-          .map((json) => Route.fromJson(json))
+          .map((json) => TouringRoute.fromJson(json))
           .toList();
     } on DioException catch (e) {
       throw _handleError(e);
@@ -73,20 +73,20 @@ class ApiService {
   }
 
   /// ルート詳細を取得
-  Future<Route> getRoute(String id) async {
+  Future<TouringRoute> getRoute(String id) async {
     try {
       final response = await _dio.get('/routes/$id');
-      return Route.fromJson(response.data);
+      return TouringRoute.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
   /// ルートを更新
-  Future<Route> updateRoute(String id, Map<String, dynamic> updateData) async {
+  Future<TouringRoute> updateRoute(String id, Map<String, dynamic> updateData) async {
     try {
       final response = await _dio.patch('/routes/$id', data: updateData);
-      return Route.fromJson(response.data);
+      return TouringRoute.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
     }

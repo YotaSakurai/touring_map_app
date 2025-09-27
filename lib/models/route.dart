@@ -4,7 +4,7 @@ part 'route.g.dart';
 
 /// ルートモデル
 @JsonSerializable()
-class Route {
+class TouringRoute {
   final String id;
   final String ownerId;
   final String title;
@@ -18,7 +18,7 @@ class Route {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  const Route({
+  const TouringRoute({
     required this.id,
     required this.ownerId,
     required this.title,
@@ -33,8 +33,8 @@ class Route {
     required this.updatedAt,
   });
 
-  factory Route.fromJson(Map<String, dynamic> json) => _$RouteFromJson(json);
-  Map<String, dynamic> toJson() => _$RouteToJson(this);
+  factory TouringRoute.fromJson(Map<String, dynamic> json) => _$TouringRouteFromJson(json);
+  Map<String, dynamic> toJson() => _$TouringRouteToJson(this);
 
   /// 可視性の定数
   static const String visibilityPublic = 'public';
@@ -48,4 +48,21 @@ class Route {
   static const String tagRiderWelcome = 'rider_welcome';
   static const String tagScenic = 'scenic';
   static const String tagFood = 'food';
+}
+
+/// 可視性の定数
+class RouteVisibility {
+  static const String public = 'public';
+  static const String unlisted = 'unlisted';
+  static const String private = 'private';
+}
+
+/// タグの定数
+class RouteTags {
+  static const String night = 'night';
+  static const String onsen = 'onsen';
+  static const String parking2w = 'parking2w';
+  static const String riderWelcome = 'rider_welcome';
+  static const String scenic = 'scenic';
+  static const String food = 'food';
 }
